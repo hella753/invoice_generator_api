@@ -77,7 +77,8 @@ class InvoiceService:
     the InvoiceGenerator class.
     """
 
-    def calculate_totals(self, data: Dict[str, Any]) -> Tuple[Decimal, Decimal]:
+    @staticmethod
+    def calculate_totals(data: Dict[str, Any]) -> Tuple[Decimal, Decimal]:
         """
         Calculate the total amount and total VAT of the invoice.
 
