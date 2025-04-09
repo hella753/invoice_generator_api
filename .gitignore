@@ -1,0 +1,10 @@
+db.sqlite3
+.idea/
+__pycache__/
+invoice_generator_api/__pycache__/
+user/__pycache__/
+user/migrations/__pycache__/
+api/__pycache__/
+api/migrations/__pycache__/
+.venv/
+.env

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice {{ invoice_number }}</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 0;  /* Remove margins if you want full width */
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .invoice-container {
+            max-width: 100%;
+            margin: 0 auto;
+            border: 1px solid #e0e0e0;
+        }
+
+        .invoice-header {
+            padding: 30px;
+            text-align: right; /* Force all header content right */
+            border-bottom: 2px solid #000;
+        }
+
+        .header-content {
+            {#display: flex;#}
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .invoice-meta {
+            text-align: right;
+        }
+
+        .invoice-number {
+            font-size: 32px;
+            margin-bottom: 5px;
+            text-align: right; /* Explicitly set to right */
+        }
+
+        .invoice-date {
+            color: #777;
+            text-align: right; /* Explicitly set to right */
+        }
+
+        .invoice-body {
+            padding: 30px;
+        }
+
+        .parties {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .party {
+            width: 45%;
+            display: inline-block;
+        }
+
+        .party-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .company-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+
+        .items-table th {
+            text-align: left;
+            padding: 12px 8px;
+            border-bottom: 1px solid #000;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .items-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .items-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .totals {
+            margin-left: auto;
+            width: 40%;
+            margin-bottom: 40px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .total-label {
+            font-weight: bold;
+        }
+
+        .grand-total {
+            font-size: 18px;
+            font-weight: bold;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .bank-details {
+            border-top: 1px solid #e0e0e0;
+            padding-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .bank-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .rate-detail {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 10px;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+<div class="invoice-container">
+    <div class="invoice-header">
+        <div class="header-content">
+            <div class="invoice-meta">
+                <div class="invoice-number">Invoice Number #: <span id="invoiceNumber">{{ invoice_number }}</span>
+                </div>
+                <div class="invoice-date">Invoice Creation Date: <span id="invoiceDate">{{ date_now_en }}</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="invoice-body">
+
+        <div class="parties">
+            <div class="party">
+                <div class="party-title">Receiver</div>
+                <div class="company-name" id="receiverCompanyName">{{ receiver_en }}</div>
+                <div>Identification Code: <span id="receiverIdCode">{{ receiver_id }}</span></div>
+                <div>Contact: <span id="receiverPhone">{{ receiver_phone }}</span></div>
+            </div>
+            <div class="party">
+                <div class="party-title">Payer</div>
+                <div class="company-name" id="payerCompanyName">{{ payer_en }}</div>
+                <div>Identification Code: <span id="payerIdCode">{{ payer_id }}</span></div>
+                <div>Contact: <span id="payerPhone">{{ payer_phone }}</span></div>
+            </div>
+        </div>
+
+        <table class="items-table">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Purpose</th>
+                <th>Amount</th>
+                <th id="vatColumnHeader">VAT</th>
+            </tr>
+            </thead>
+            <tbody id="itemsList">
+            {% for purpose in purposes %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ purpose.description }}</td>
+                    <td>{{ purpose.amount }}</td>
+                    {% if purpose.has_vat %}
+                        <td class="vat-column">{{ purpose.vat_amount }}</td>
+                    {% else %}
+                        <td class="vat-column">-</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <div class="total-row">
+                <div class="total-label">Subtotal:</div>
+                <div id="subtotal">{{ total_without_vat }}</div>
+            </div>
+            <div class="total-row" id="vatRow">
+                <div class="total-label">VAT (18%):</div>
+                <div id="vatTotal">{{ vat_total }}</div>
+            </div>
+            <div class="total-row grand-total">
+                <div class="total-label">Total Amount:</div>
+                {% if currency == "USD" %}
+                    <div id="grandTotal">${{ total_amount }}</div>
+                {% elif currency == "EUR" %}
+                    <div id="grandTotal">€{{ total_amount }}</div>
+                {% elif currency == "GEL" %}
+                    <div id="grandTotal">₾{{ total_amount }}</div>
+                {% elif currency == "GBP" %}
+                    <div id="grandTotal">£{{ total_amount }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+
+        <div>
+            {% if currency != "GEL" %}
+                <p class="rate-detail">
+                    {% if should_use_invoice_date_currency_rate %}
+                        The conversion should be done according to the currency rate determined by the National Bank on the date of invoice issuance.
+                    {% else %}
+                        The conversion should be done according to the currency rate determined by the National Bank on the payment date.
+                    {% endif %}
+                </p>
+            {% endif %}
+        </div>
+
+
+        <div class="bank-details">
+            <div class="bank-title">Bank Details</div>
+            <div>Bank Name: <span id="bankName">{{ bank_name_en }}</span></div>
+            <div>Bank Account: <span id="bankAccount">{{ bank_acc_num }}</span></div>
+            <div>Bank Code: <span id="bankCode">{{ bank_code }}</span></div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

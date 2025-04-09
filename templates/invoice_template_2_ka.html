@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ინვოისი N {{ invoice_number }}</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 0;  /* Remove margins if you want full width */
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: white;
+            color: #333;
+        }
+
+        .invoice-container {
+            max-width: 100%;
+            margin: 0 0;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .invoice-header {
+            background-color: #8C4440;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+
+        .invoice-number {
+            font-size: 24px;
+        }
+
+        .invoice-date {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .invoice-parties {
+            display: flex;
+            justify-content: space-around;
+            padding: 40px 20px; /* Increased padding */
+            border-bottom: 1px solid #eee;
+        }
+
+        .party-box {
+            width: 45%;
+            display: inline-block;
+        }
+
+        .party-title {
+            font-weight: bold;
+            color: #8C4440;
+            margin-bottom: 15px; /* Increased margin */
+            font-size: 14px;
+        }
+
+        .party-name {
+            font-weight: bold;
+            font-size: 16px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+            margin-bottom: 10px; /* Increased margin */
+            display: block;
+        }
+
+        .party-details {
+            font-size: 14px;
+            line-height: 1.6; /* Increased line height */
+        }
+
+        .invoice-items {
+            margin-bottom: 30px; /* Added margin */
+            flex-grow: 1; /* Allow this section to grow and take up available space */
+            padding: 20px;
+        }
+
+        .items-title {
+            font-weight: bold;
+            {#text-transform: uppercase;#}
+            margin-bottom: 20px; /* Increased margin */
+            color: #8C4440;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px; /* Added margin */
+
+        }
+
+        th {
+            background-color: #E5D0AC;
+            opacity: 70%;
+            color: black;
+            text-align: left;
+            padding: 10px;
+            font-size: 14px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .total-row {
+            opacity: 70%;
+            color: black;
+            font-weight: bold;
+            background-color: #E5D0AC;
+        }
+
+        .vat-row {
+            color: #8C4440;
+        }
+
+        .invoice-footer {
+            background-color: #f9f9f9;
+            padding: 30px; /* Increased padding */
+            margin-top: 20px; /* Added margin */
+            border-top: 1px solid #eee;
+        }
+
+        .bank-details {
+            margin-top: 20px;
+        }
+
+        .bank-title {
+            font-weight: bold;
+            {#text-transform: uppercase;#}
+            margin-bottom: 15px; /* Increased margin */
+            color: #8C4440;
+            font-size: 14px;
+        }
+
+        .bank-info {
+            font-size: 14px;
+            line-height: 1.8; /* Increased line height */
+        }
+
+        .rate-detail {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 10px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+<div class="invoice-container">
+    <div class="invoice-header">
+        <div>
+            <div class="invoice-date">თარიღი: <span id="currentDate">{{ date_now }}</span></div>
+        </div>
+        <div class="invoice-number">
+            ინვოისის ნომერი #: <span id="invoiceNumber">{{ invoice_number }}</span>
+        </div>
+    </div>
+
+    <div class="invoice-parties">
+        <div class="party-box">
+            <div class="party-title">მიმღები:</div>
+            <div class="party-name" id="receiverCompany">{{ receiver_ka }}</div>
+            <div class="party-details">
+                საიდენტიფიკაციო კოდი: <span id="receiverID">{{ receiver_id }}</span><br>
+                კონტაქტი: <span id="receiverPhone">{{ receiver_phone }}</span>
+            </div>
+        </div>
+        <div class="party-box">
+            <div class="party-title">გადამხდელი:</div>
+            <div class="party-name" id="payerCompany">{{ payer_ka }}</div>
+            <div class="party-details">
+                საიდენტიფიკაციო კოდი: <span id="payerID">{{ payer_id }}</span><br>
+                კონტაქტი: <span id="payerPhone">{{ payer_phone }}</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="invoice-items">
+        <div class="items-title">ინვოისის დეტალები</div>
+        <table>
+            <thead>
+            <tr>
+                <th width="50%">დანიშნულება</th>
+                <th width="20%">თანხა</th>
+                <th width="15%" id="vatHeader" class="text-right">დღგ</th>
+                <th width="15%" class="text-right">ჯამი</th>
+            </tr>
+            </thead>
+            <tbody id="invoiceItems">
+            {% for purpose in purposes %}
+                <tr>
+                    <td>{{ purpose.description }}</td>
+                    <td>{{ purpose.amount }}</td>
+                    {% if purpose.has_vat %}
+                        <td class="text-right vat-amount">{{ purpose.vat_amount }}</td>
+                    {% else %}
+                        <td class="text-right">-</td>
+                    {% endif %}
+                    <td class="text-right">{{ purpose.total }}</td>
+                </tr>
+            {% endfor %}
+
+            <tr class="vat-row" id="vatTotalRow">
+                <td colspan="2" class="text-right">დღგ ჯამური:</td>
+                <td class="text-right">{{ vat_total }}</td>
+                <td></td>
+            </tr>
+            <tr class="total-row">
+                <td colspan="3" class="text-right">ჯამური თანხა:</td>
+                {% if currency == "GEL" %}
+                    <td class="text-right total-amount">₾{{ total_amount }}</td>
+                {% elif currency == "USD" %}
+                    <td class="text-right" id="totalAmount">${{ total_amount }}</td>
+                {% elif currency == "EUR" %}
+                    <td class="text-right total-amount">€{{ total_amount }}</td>
+                {% elif currency == "GBP" %}
+                    <td class="text-right total-amount">£{{ total_amount }}</td>
+                {% endif %}
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        {% if currency != "GEL" %}
+            <p class="rate-detail">
+                {% if should_use_invoice_date_currency_rate %}
+                    გადარიცხვა უნდა განხორციელდეს ინვოისის გამოწერის თარიღში ეროვნული ბანკის მიერ დადგენილი კურსით.
+                {% else %}
+                    გადარიცხვა უნდა განხორციელდეს გადახდის დღეს, ეროვნული ბანკის მიერ დადგენილი კურსით
+                {% endif %}
+            </p>
+        {% endif %}
+    </div>
+
+    <div class="invoice-footer">
+        <div class="bank-details">
+            <div class="bank-title">საბანკო რეკვიზიტები</div>
+            <div class="bank-info">
+                ბანკის დასახელება: <span id="bankName">{{ bank_name_ka }}</span><br>
+                ანგარიშის ნომერი: <span id="bankAccount">{{ bank_acc_num }}</span><br>
+                ბანკის კოდი: <span id="bankCode">{{ bank_code }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
