@@ -73,8 +73,6 @@ class InvoiceService:
     Service class for invoice generation helper methods
     to calculate VAT amount, generate invoice number and
     calculate total amount of the invoice.
-    For code reusability, these methods are separated from
-    the InvoiceGenerator class.
     """
 
     @staticmethod
