@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
@@ -37,9 +38,13 @@ class InvoiceGenerationSerializer(ModelSerializer):
             raise serializers.ValidationError(f"Language should be one "
                                               f"of ['en', 'ka']")
 
-        if template and template not in ["template1", "template2", "template3", "template4"]:
+        if template and template not in ["template1",
+                                         "template2",
+                                         "template3",
+                                         "template4"]:
             raise serializers.ValidationError(
-                f"Template should be one of ['template1', 'template2', 'template3', 'template4']"
+                f"Template should be one of "
+                f"['template1', 'template2', 'template3', 'template4']"
             )
         return attrs
 
@@ -59,12 +64,17 @@ class InvoiceFavoriteSerializer(ModelSerializer):
             raise serializers.ValidationError(f"Language should be one "
                                               f"of ['en', 'ka']")
 
-        if template and template not in ["template1", "template2", "template3", "template4"]:
+        if template and template not in ["template1",
+                                         "template2",
+                                         "template3",
+                                         "template4"]:
             raise serializers.ValidationError(
-                f"Template should be one of ['template1', 'template2', 'template3', 'template4']"
+                f"Template should be one of "
+                f"['template1', 'template2', 'template3', 'template4']"
             )
         return attrs
 
+    @transaction.atomic
     def create(self, validated_data):
         """
         Count vat amounts and total amount of the receipt.
@@ -91,6 +101,7 @@ class InvoiceFavoriteSerializer(ModelSerializer):
         Purpose.objects.bulk_create(purposes_list)
         return invoice
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         """
         Update invoice instance.
@@ -135,8 +146,12 @@ class InvoiceDisplaySerializer(ModelSerializer):
             raise serializers.ValidationError(f"Language should be one "
                                               f"of ['en', 'ka']")
 
-        if template and template not in ["template1", "template2", "template3", "template4"]:
+        if template and template not in ["template1",
+                                         "template2",
+                                         "template3",
+                                         "template4"]:
             raise serializers.ValidationError(
-                f"Template should be one of ['template1', 'template2', 'template3', 'template4']"
+                f"Template should be one of "
+                f"['template1', 'template2', 'template3', 'template4']"
             )
         return attrs
