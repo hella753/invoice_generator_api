@@ -170,13 +170,13 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
-    'AUTH_COOKIE': 'access_token',
-    'AUTH_COOKIE_REFRESH': 'refresh_token',
-    'AUTH_COOKIE_DOMAIN': None,
-    'AUTH_COOKIE_SECURE': True,
-    'AUTH_COOKIE_HTTP_ONLY': False,
-    'AUTH_COOKIE_PATH': '/',
-    'AUTH_COOKIE_SAMESITE': 'None',
+    # 'AUTH_COOKIE': 'access_token',
+    # 'AUTH_COOKIE_REFRESH': 'refresh_token',
+    # 'AUTH_COOKIE_DOMAIN': None,
+    # 'AUTH_COOKIE_SECURE': True,
+    # 'AUTH_COOKIE_HTTP_ONLY': False,
+    # 'AUTH_COOKIE_PATH': '/',
+    # 'AUTH_COOKIE_SAMESITE': 'None',
 }
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
